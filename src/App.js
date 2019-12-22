@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import loginService from './services/loginService';
 import blogService from './services/blogService';
 
@@ -19,10 +19,27 @@ const App = () => {
   const handleLogin = async event => {
     event.preventDefault();
     const user = await loginService.login({ username, password });
-    setUser(user);
-    const blogs = await blogService.getAll(user.token);
-    setBlogs(blogs);
+    if ('token' in user) {
+      setUser(user);
+      window.localStorage.setItem('login', JSON.stringify(user));
+      const blogs = await blogService.getAll(user.token);
+      setBlogs(blogs);
+    }
   };
+
+  const handleLogout = () => {
+    window.localStorage.removeItem('login');
+    setUser(null);
+    setBlogs([]);
+  };
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('login');
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+    }
+  }, []);
 
   if (user === null) {
     return (
@@ -56,7 +73,12 @@ const App = () => {
   return (
     <>
       <h1>Blogs</h1>
-      <div>Logged in as {user.username}</div>
+      <div>
+        Logged in as {user.username}{' '}
+        <button type="button" onClick={handleLogout}>
+          logout
+        </button>
+      </div>
       <div>
         <h2>blogs</h2>
         <ul>
