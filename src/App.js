@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import loginService from './services/loginService';
 import blogService from './services/blogService';
 import LoginForm from './components/LoginForm';
 import Logout from './components/Logout';
 import BlogList from './components/BlogList';
 import CreateBlogForm from './components/CreateBlogForm';
+
+import './App.css';
+import Toast from './components/Toast';
 
 const App = () => {
   const [username, setUsername] = useState('');
@@ -14,6 +17,7 @@ const App = () => {
   const [author, setAuthor] = useState('');
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
+  const [toast, setToast] = useState({ type: '', text: '' });
 
   const onChangeUsername = ({ target }) => setUsername(target.value);
   const onChangePassword = ({ target }) => setPassword(target.value);
@@ -21,45 +25,72 @@ const App = () => {
   const onChangeTitle = ({ target }) => setTitle(target.value);
   const onChangeUrl = ({ target }) => setUrl(target.value);
 
+  const showToast = (text, type = 'success') => {
+    setToast({ type, text });
+    setTimeout(() => {
+      setToast({ type: '', text: '' });
+    }, 5000);
+  };
+
   const getBlogList = async user => {
-    const blogs = await blogService.getAll(user.token);
-    setBlogs(blogs);
+    try {
+      const blogs = await blogService.getAll(user.token);
+      setBlogs(blogs);
+    } catch (err) {
+      showToast('Failed to get the list of blogs', 'error');
+    }
   };
 
   const handleLogin = async event => {
     event.preventDefault();
-    const user = await loginService.login({ username, password });
-    if ('token' in user) {
+    try {
+      const user = await loginService.login({ username, password });
+      if (!('token' in user)) {
+        throw new Error('Token not found');
+      }
       setUser(user);
       window.localStorage.setItem('login', JSON.stringify(user));
+      showToast('Successfully logged in as ' + username);
       await getBlogList(user);
+    } catch (err) {
+      showToast('Failed to log in', 'error');
     }
   };
 
   const handleLogout = () => {
-    window.localStorage.removeItem('login');
-    setUser(null);
-    setBlogs([]);
+    try {
+      window.localStorage.removeItem('login');
+      setUser(null);
+      setBlogs([]);
+      showToast('Successfully logged out');
+    } catch (err) {
+      showToast('Failed to log out', 'error');
+    }
   };
 
-  const handleCreateBlog = async () => {
+  const handleCreateBlog = async event => {
+    event.preventDefault();
     await blogService.create({ author, title, url }, user.token);
-    const blogs = await blogService.getAll(user.token);
-    setBlogs(blogs);
+    await getBlogList(user);
   };
 
   useEffect(() => {
+    const getAllBlogs = async user => {
+      const blogs = await blogService.getAll(user.token);
+      setBlogs(blogs);
+    };
     const loggedUserJSON = window.localStorage.getItem('login');
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
       setUser(user);
-      getBlogList(user);
+      getAllBlogs(user);
     }
   }, []);
 
   return (
     <>
       <h1>Blogs</h1>
+      <Toast type={toast.type} message={toast.text} />
       {user === null ? (
         <LoginForm
           username={username}
