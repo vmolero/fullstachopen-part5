@@ -8,6 +8,11 @@ const blogService = {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
+  },
+  create: (blog, token) => {
+    return axios.post(baseUrl, blog, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
   }
 };
 
