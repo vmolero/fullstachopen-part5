@@ -75,6 +75,16 @@ const App = () => {
     await getBlogList(user);
   };
 
+  const handleLike = blogId => async event => {
+    event.preventDefault();
+    const blogToUpdate = blogs.filter(blog => blog.id === blogId).pop();
+    const restOfBlogs = blogs.filter(blog => blog.id !== blogId);
+    blogToUpdate.likes += 1;
+    const updatedBlog = await blogService.update(blogToUpdate, user.token);
+    const allBlogs = restOfBlogs.concat([updatedBlog]);
+    setBlogs(allBlogs);
+  };
+
   useEffect(() => {
     const getAllBlogs = async user => {
       const blogs = await blogService.getAll(user.token);
@@ -114,7 +124,7 @@ const App = () => {
               handleCreateBlog={handleCreateBlog}
             />
           </Togglable>
-          <BlogList blogs={blogs} />
+          <BlogList blogs={blogs} handleLike={handleLike} />
         </>
       )}
     </>

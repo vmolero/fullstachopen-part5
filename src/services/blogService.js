@@ -13,6 +13,12 @@ const blogService = {
     return axios.post(baseUrl, blog, {
       headers: { Authorization: `Bearer ${token}` }
     });
+  },
+  update: async (blog, token) => {
+    const response = await axios.put(baseUrl + '/' + blog.id, blog, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
   }
 };
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import BlogInfo from './BlogInfo';
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, likeHandler }) => {
   const [displayInfo, setDisplayInfo] = useState(false);
   const handleTitleClick = evt => {
     setDisplayInfo(!displayInfo);
@@ -13,7 +13,7 @@ const Blog = ({ blog }) => {
       <div onClick={handleTitleClick}>
         {blog.title} written by {blog.author}
       </div>
-      <BlogInfo style={displayStyle} blog={blog} />
+      <BlogInfo style={displayStyle} blog={blog} likeHandler={likeHandler} />
     </li>
   );
 };
