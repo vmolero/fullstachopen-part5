@@ -22,8 +22,12 @@
 
 .blogListing {
   background-color: sandybrown;
+  padding: 0 4px;
+  border: 1px lightcoral solid;
+  margin: 4px 0;
 }
 
 .blogListing .blogInfo {
   background-color: cornsilk;
+  padding: 4px;
 }
