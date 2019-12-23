@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import loginService from './services/loginService';
 import blogService from './services/blogService';
 import LoginForm from './components/LoginForm';
 import Logout from './components/Logout';
 import BlogList from './components/BlogList';
 import CreateBlogForm from './components/CreateBlogForm';
+import Toast from './components/Toast';
+import Togglable from './components/Toggable';
 
 import './App.css';
-import Toast from './components/Toast';
 
 const App = () => {
   const [username, setUsername] = useState('');
@@ -102,15 +103,17 @@ const App = () => {
       ) : (
         <>
           <Logout username={user.username} handleLogout={handleLogout} />
-          <CreateBlogForm
-            author={author}
-            title={title}
-            url={url}
-            onChangeAuthor={onChangeAuthor}
-            onChangeTitle={onChangeTitle}
-            onChangeUrl={onChangeUrl}
-            handleCreateBlog={handleCreateBlog}
-          />
+          <Togglable buttonLabel={'Create new'}>
+            <CreateBlogForm
+              author={author}
+              title={title}
+              url={url}
+              onChangeAuthor={onChangeAuthor}
+              onChangeTitle={onChangeTitle}
+              onChangeUrl={onChangeUrl}
+              handleCreateBlog={handleCreateBlog}
+            />
+          </Togglable>
           <BlogList blogs={blogs} />
         </>
       )}
