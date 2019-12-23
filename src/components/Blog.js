@@ -1,8 +1,21 @@
-import React from 'react'
-const Blog = ({ blog }) => (
-  <div>
-    {blog.title} {blog.author}
-  </div>
-)
+import React, { useState } from 'react';
+import BlogInfo from './BlogInfo';
 
-export default Blog
+const Blog = ({ blog }) => {
+  const [displayInfo, setDisplayInfo] = useState(false);
+  const handleTitleClick = evt => {
+    setDisplayInfo(!displayInfo);
+  };
+
+  const displayStyle = { display: displayInfo ? 'block' : 'none' };
+  return (
+    <li className="blogListing">
+      <div onClick={handleTitleClick}>
+        {blog.title} written by {blog.author}
+      </div>
+      <BlogInfo style={displayStyle} blog={blog} />
+    </li>
+  );
+};
+
+export default Blog;

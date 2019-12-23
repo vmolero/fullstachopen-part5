@@ -13,3 +13,17 @@
   color: black;
   font-size: medium;
 }
+
+.blogListings {
+  list-style-type: none;
+  list-style-position: outside;
+  padding: 0;
+}
+
+.blogListing {
+  background-color: sandybrown;
+}
+
+.blogListing .blogInfo {
+  background-color: cornsilk;
+}
