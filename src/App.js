@@ -10,6 +10,40 @@ import Togglable from './components/Toggable';
 
 import './App.css';
 
+function findBlogPositionWithId(blogId, blogs) {
+  let positionInArray = -1,
+    found = false,
+    end = false;
+
+  do {
+    positionInArray += 1;
+    found = blogs[positionInArray].id === blogId;
+    end = positionInArray === blogs.length - 1;
+  } while (!found && !end);
+
+  return positionInArray;
+}
+
+function extractElementAt(positionInArray, blogs) {
+  let blogToUpdate = null;
+  const blogsCopy = blogs.map(blog => blog);
+  if (positionInArray > -1) {
+    blogToUpdate = blogsCopy.splice(positionInArray, 1).pop();
+  }
+
+  return [blogToUpdate, blogsCopy];
+}
+
+function insertElementAt(positionInArray, blogsCopy, updatedBlog) {
+  blogsCopy.splice(positionInArray, 0, updatedBlog);
+}
+
+function sortByLikes(blogsCopy) {
+  blogsCopy.sort((blogA, blogB) =>
+    parseInt(blogA.likes) > parseInt(blogB.likes) ? -1 : 1
+  );
+}
+
 const App = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -35,8 +69,9 @@ const App = () => {
 
   const getBlogList = async user => {
     try {
-      const blogs = await blogService.getAll(user.token);
-      setBlogs(blogs);
+      const blogList = await blogService.getAll(user.token);
+      sortByLikes(blogList);
+      setBlogs(blogList);
     } catch (err) {
       showToast('Failed to get the list of blogs', 'error');
     }
@@ -45,14 +80,14 @@ const App = () => {
   const handleLogin = async event => {
     event.preventDefault();
     try {
-      const user = await loginService.login({ username, password });
-      if (!('token' in user)) {
+      const loggedUser = await loginService.login({ username, password });
+      if (!('token' in loggedUser)) {
         throw new Error('Token not found');
       }
-      setUser(user);
-      window.localStorage.setItem('login', JSON.stringify(user));
+      setUser(loggedUser);
+      window.localStorage.setItem('login', JSON.stringify(loggedUser));
       showToast('Successfully logged in as ' + username);
-      await getBlogList(user);
+      await getBlogList(loggedUser);
     } catch (err) {
       showToast('Failed to log in', 'error');
     }
@@ -77,24 +112,27 @@ const App = () => {
 
   const handleLike = blogId => async event => {
     event.preventDefault();
-    const blogToUpdate = blogs.filter(blog => blog.id === blogId).pop();
-    const restOfBlogs = blogs.filter(blog => blog.id !== blogId);
+    const positionInArray = findBlogPositionWithId(blogId, blogs);
+    const [blogToUpdate, blogsCopy] = extractElementAt(positionInArray, blogs);
     blogToUpdate.likes += 1;
     const updatedBlog = await blogService.update(blogToUpdate, user.token);
-    const allBlogs = restOfBlogs.concat([updatedBlog]);
-    setBlogs(allBlogs);
+    updatedBlog.user = blogToUpdate.user;
+    insertElementAt(positionInArray, blogsCopy, updatedBlog);
+    sortByLikes(blogsCopy);
+    setBlogs(blogsCopy);
   };
 
   useEffect(() => {
     const getAllBlogs = async user => {
-      const blogs = await blogService.getAll(user.token);
-      setBlogs(blogs);
+      const blogList = await blogService.getAll(user.token);
+      sortByLikes(blogList);
+      setBlogs(blogList);
     };
     const loggedUserJSON = window.localStorage.getItem('login');
     if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      getAllBlogs(user);
+      const savedUser = JSON.parse(loggedUserJSON);
+      setUser(savedUser);
+      getAllBlogs(savedUser);
     }
   }, []);
 
