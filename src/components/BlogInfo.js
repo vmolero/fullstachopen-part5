@@ -1,8 +1,11 @@
 import React, { useState, useImperativeHandle } from 'react';
 
 const BlogInfo = React.forwardRef(
-  ({ blog, likeHandler, deleteHandler }, ref) => {
+  ({ user, blog, likeHandler, deleteHandler }, ref) => {
     const addedBy = blog.user ? blog.user.name || blog.user.username : 'Admin';
+    const addedByUsername = blog.user ? blog.user.username : 'admin';
+    const canDelete =
+      addedByUsername === user.username || addedByUsername === 'admin';
     const [visible, setVisible] = useState(false);
     const toggleVisibility = evt => {
       setVisible(!visible);
@@ -24,7 +27,7 @@ const BlogInfo = React.forwardRef(
         <p>
           added by <span>{addedBy}</span>
         </p>
-        <button onClick={deleteHandler}>delete</button>
+        {canDelete ? <button onClick={deleteHandler}>delete</button> : null}
       </div>
     );
   }

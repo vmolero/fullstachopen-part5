@@ -182,6 +182,7 @@ const App = () => {
             />
           </Togglable>
           <BlogList
+            user={user}
             blogs={blogs}
             handleLike={handleLike}
             handleDelete={handleDelete}
