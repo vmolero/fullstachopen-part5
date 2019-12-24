@@ -1,11 +1,12 @@
 import React, { useState, useImperativeHandle } from 'react';
+import PropTypes from 'prop-types';
 
 const BlogInfo = React.forwardRef(
-  ({ user, blog, likeHandler, deleteHandler }, ref) => {
-    const addedBy = blog.user ? blog.user.name || blog.user.username : 'Admin';
-    const addedByUsername = blog.user ? blog.user.username : 'admin';
-    const canDelete =
-      addedByUsername === user.username || addedByUsername === 'admin';
+  (
+    { likes, url, ownerUsername, username, likeHandler, deleteHandler },
+    ref
+  ) => {
+    const canDelete = ownerUsername === username || ownerUsername === undefined;
     const [visible, setVisible] = useState(false);
     const toggleVisibility = evt => {
       setVisible(!visible);
@@ -21,18 +22,27 @@ const BlogInfo = React.forwardRef(
     return (
       <div style={displayStyle} className="blogInfo">
         <p>
-          <a href={blog.url}>{blog.url}</a>
+          <a href={url}>{url}</a>
         </p>
         <p>
-          {blog.likes} likes <button onClick={likeHandler}>like</button>
+          {likes} likes <button onClick={likeHandler}>like</button>
         </p>
         <p>
-          added by <span>{addedBy}</span>
+          added by <span>{ownerUsername}</span>
         </p>
         {canDelete ? <button onClick={deleteHandler}>delete</button> : null}
       </div>
     );
   }
 );
+
+BlogInfo.propTypes = {
+  likes: PropTypes.number.isRequired,
+  url: PropTypes.string.isRequired,
+  ownerUsername: PropTypes.string,
+  username: PropTypes.string.isRequired,
+  likeHandler: PropTypes.func.isRequired,
+  deleteHandler: PropTypes.func.isRequired
+};
 
 export default BlogInfo;
