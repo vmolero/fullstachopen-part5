@@ -134,6 +134,7 @@ const App = () => {
       try {
         await blogService.delete(blogToDelete, user.token);
         setBlogs(blogsCopy);
+        showToast(`Blog entry ${blogToDelete.title} deleted`);
       } catch (err) {
         showToast('Failed to delete blog', 'error');
       }
