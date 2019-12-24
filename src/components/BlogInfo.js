@@ -1,9 +1,21 @@
-import React from 'react';
+import React, { useState, useImperativeHandle } from 'react';
 
-const BlogInfo = ({ style, blog, likeHandler }) => {
+const BlogInfo = React.forwardRef(({ blog, likeHandler }, ref) => {
   const addedBy = blog.user ? blog.user.name || blog.user.username : 'Admin';
+  const [visible, setVisible] = useState(false);
+  const toggleVisibility = evt => {
+    setVisible(!visible);
+  };
+
+  useImperativeHandle(ref, () => {
+    return {
+      toggleVisibility
+    };
+  });
+
+  const displayStyle = { display: visible ? 'block' : 'none' };
   return (
-    <div style={style} className="blogInfo">
+    <div style={displayStyle} className="blogInfo">
       <p>{blog.url}</p>
       <p>
         {blog.likes} likes <button onClick={likeHandler}>like</button>
@@ -13,6 +25,6 @@ const BlogInfo = ({ style, blog, likeHandler }) => {
       </p>
     </div>
   );
-};
+});
 
 export default BlogInfo;

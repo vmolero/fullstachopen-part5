@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import BlogInfo from './BlogInfo';
 
 const Blog = ({ blog, likeHandler }) => {
-  const [displayInfo, setDisplayInfo] = useState(false);
+  const infoReference = React.createRef();
+
   const handleTitleClick = evt => {
-    setDisplayInfo(!displayInfo);
+    infoReference.current.toggleVisibility();
   };
 
-  const displayStyle = { display: displayInfo ? 'block' : 'none' };
   return (
     <li className="blogListing">
       <div onClick={handleTitleClick}>
         {blog.title} written by {blog.author}
       </div>
-      <BlogInfo style={displayStyle} blog={blog} likeHandler={likeHandler} />
+      <BlogInfo ref={infoReference} blog={blog} likeHandler={likeHandler} />
     </li>
   );
 };
