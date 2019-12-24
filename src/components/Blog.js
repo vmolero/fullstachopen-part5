@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 const Blog = ({ user, blog, likeHandler, deleteHandler }) => {
   const infoReference = React.createRef();
 
-  const handleTitleClick = evt => {
+  const handleTitleClick = () => {
     infoReference.current.toggleVisibility();
   };
 

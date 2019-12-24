@@ -8,7 +8,7 @@ const BlogInfo = React.forwardRef(
   ) => {
     const canDelete = ownerUsername === username || ownerUsername === undefined;
     const [visible, setVisible] = useState(false);
-    const toggleVisibility = evt => {
+    const toggleVisibility = () => {
       setVisible(!visible);
     };
 
@@ -45,4 +45,5 @@ BlogInfo.propTypes = {
   deleteHandler: PropTypes.func.isRequired
 };
 
+BlogInfo.displayName = 'BlogInfo';
 export default BlogInfo;
