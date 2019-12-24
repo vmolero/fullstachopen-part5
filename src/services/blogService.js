@@ -19,6 +19,11 @@ const blogService = {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
+  },
+  delete: (blog, token) => {
+    return axios.delete(baseUrl + '/' + blog.id, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
   }
 };
 

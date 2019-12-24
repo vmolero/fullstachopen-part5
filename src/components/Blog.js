@@ -1,7 +1,7 @@
 import React from 'react';
 import BlogInfo from './BlogInfo';
 
-const Blog = ({ blog, likeHandler }) => {
+const Blog = ({ blog, likeHandler, deleteHandler }) => {
   const infoReference = React.createRef();
 
   const handleTitleClick = evt => {
@@ -13,7 +13,12 @@ const Blog = ({ blog, likeHandler }) => {
       <div onClick={handleTitleClick}>
         {blog.title} written by {blog.author}
       </div>
-      <BlogInfo ref={infoReference} blog={blog} likeHandler={likeHandler} />
+      <BlogInfo
+        ref={infoReference}
+        blog={blog}
+        likeHandler={likeHandler}
+        deleteHandler={deleteHandler}
+      />
     </li>
   );
 };

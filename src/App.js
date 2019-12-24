@@ -122,6 +122,24 @@ const App = () => {
     setBlogs(blogsCopy);
   };
 
+  const handleDelete = blogId => async event => {
+    event.preventDefault();
+    const positionInArray = findBlogPositionWithId(blogId, blogs);
+    const [blogToDelete, blogsCopy] = extractElementAt(positionInArray, blogs);
+    if (
+      window.confirm(
+        `Remove blog ${blogToDelete.title} by ${blogToDelete.author}?`
+      )
+    ) {
+      try {
+        await blogService.delete(blogToDelete, user.token);
+        setBlogs(blogsCopy);
+      } catch (err) {
+        showToast('Failed to delete blog', 'error');
+      }
+    }
+  };
+
   useEffect(() => {
     const getAllBlogs = async user => {
       const blogList = await blogService.getAll(user.token);
@@ -162,7 +180,11 @@ const App = () => {
               handleCreateBlog={handleCreateBlog}
             />
           </Togglable>
-          <BlogList blogs={blogs} handleLike={handleLike} />
+          <BlogList
+            blogs={blogs}
+            handleLike={handleLike}
+            handleDelete={handleDelete}
+          />
         </>
       )}
     </>
