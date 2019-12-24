@@ -5,7 +5,8 @@ const Toast = ({ type, message }) => {
     return null;
   }
 
-  return <div className={type}>{message}</div>;
+  const toastClasses = `${type} toast`;
+  return <div className={toastClasses}>{message}</div>;
 };
 
 export default Toast;

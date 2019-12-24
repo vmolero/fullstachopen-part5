@@ -106,20 +106,35 @@ const App = () => {
 
   const handleCreateBlog = async event => {
     event.preventDefault();
-    await blogService.create({ author, title, url }, user.token);
-    await getBlogList(user);
+    try {
+      await blogService.create({ author, title, url }, user.token);
+      await getBlogList(user);
+      setAuthor('');
+      setTitle('');
+      setUrl('');
+      showToast(`Blog entry ${title} by ${author} created successfully`);
+    } catch (err) {
+      showToast(`Failed to create ${title} by ${author}`, 'error');
+    }
   };
 
   const handleLike = blogId => async event => {
     event.preventDefault();
-    const positionInArray = findBlogPositionWithId(blogId, blogs);
+    try {
+      const positionInArray = findBlogPositionWithId(blogId, blogs);
     const [blogToUpdate, blogsCopy] = extractElementAt(positionInArray, blogs);
     blogToUpdate.likes += 1;
     const updatedBlog = await blogService.update(blogToUpdate, user.token);
-    updatedBlog.user = blogToUpdate.user;
-    insertElementAt(positionInArray, blogsCopy, updatedBlog);
-    sortByLikes(blogsCopy);
-    setBlogs(blogsCopy);
+      updatedBlog.user = blogToUpdate.user;
+      insertElementAt(positionInArray, blogsCopy, updatedBlog);
+      sortByLikes(blogsCopy);
+      setBlogs(blogsCopy);
+      showToast(
+        `Blog ${blogToUpdate.title} written by ${blogToUpdate.author} liked!`
+      );
+    } catch (err) {
+      showToast('Failed to update blog', 'error');
+    }
   };
 
   const handleDelete = blogId => async event => {

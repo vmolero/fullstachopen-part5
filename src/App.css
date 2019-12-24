@@ -1,3 +1,7 @@
+.toast {
+  margin: 8px;
+}
+
 .success {
   padding: 1em;
   background-color: lightgreen;

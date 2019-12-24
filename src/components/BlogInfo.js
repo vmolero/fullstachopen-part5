@@ -20,7 +20,9 @@ const BlogInfo = React.forwardRef(
     const displayStyle = { display: visible ? 'block' : 'none' };
     return (
       <div style={displayStyle} className="blogInfo">
-        <p>{blog.url}</p>
+        <p>
+          <a href={blog.url}>{blog.url}</a>
+        </p>
         <p>
           {blog.likes} likes <button onClick={likeHandler}>like</button>
         </p>
