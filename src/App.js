@@ -122,9 +122,15 @@ const App = () => {
     event.preventDefault();
     try {
       const positionInArray = findBlogPositionWithId(blogId, blogs);
-    const [blogToUpdate, blogsCopy] = extractElementAt(positionInArray, blogs);
-    blogToUpdate.likes += 1;
-    const updatedBlog = await blogService.update(blogToUpdate, user.token);
+      const [blogToUpdate, blogsCopy] = extractElementAt(
+        positionInArray,
+        blogs
+      );
+      const newLikesValue = blogToUpdate.likes + 1;
+      const updatedBlog = await blogService.update(
+        { ...blogToUpdate, likes: newLikesValue },
+        user.token
+      );
       updatedBlog.user = blogToUpdate.user;
       insertElementAt(positionInArray, blogsCopy, updatedBlog);
       sortByLikes(blogsCopy);
