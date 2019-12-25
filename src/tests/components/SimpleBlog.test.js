@@ -20,3 +20,24 @@ test('renders content', () => {
   const div = component.container.querySelector('.info');
   expect(div).toHaveTextContent('blog has 7 likes');
 });
+
+test('button click calls handler', () => {
+  const blog = {
+    title: 'Learning React.',
+    author: 'Victor Molero',
+    url: 'http://learning-react.com',
+    likes: 7
+  };
+
+  const mockHandler = jest.fn();
+
+  const { getByText } = render(
+    <SimpleBlog blog={blog} onClick={mockHandler} />
+  );
+
+  const button = getByText('like');
+  fireEvent.click(button);
+  fireEvent.click(button);
+
+  expect(mockHandler.mock.calls.length).toBe(2);
+});
