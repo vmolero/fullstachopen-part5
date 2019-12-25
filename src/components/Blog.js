@@ -11,7 +11,7 @@ const Blog = ({ user, blog, likeHandler, deleteHandler }) => {
 
   return (
     <li className="blogListing">
-      <div onClick={handleTitleClick}>
+      <div onClick={handleTitleClick} className="header">
         {blog.title} written by {blog.author || 'Anonymous'}
       </div>
       <BlogInfo
