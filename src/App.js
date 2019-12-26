@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import loginService from './services/loginService';
 import blogService from './services/blogService';
 import LoginForm from './components/LoginForm';
@@ -7,10 +7,11 @@ import BlogList from './components/BlogList';
 import CreateBlogForm from './components/CreateBlogForm';
 import Toast from './components/Toast';
 import Togglable from './components/Toggable';
+import { useResource } from './hooks';
 
 import './App.css';
 
-function findBlogPositionWithId(blogId, blogs) {
+function findBlogWithId(blogId, blogs) {
   let positionInArray = -1,
     found = false,
     end = false;
@@ -21,21 +22,7 @@ function findBlogPositionWithId(blogId, blogs) {
     end = positionInArray === blogs.length - 1;
   } while (!found && !end);
 
-  return positionInArray;
-}
-
-function extractElementAt(positionInArray, blogs) {
-  let blogToUpdate = null;
-  const blogsCopy = blogs.map(blog => blog);
-  if (positionInArray > -1) {
-    blogToUpdate = blogsCopy.splice(positionInArray, 1).pop();
-  }
-
-  return [blogToUpdate, blogsCopy];
-}
-
-function insertElementAt(positionInArray, blogsCopy, updatedBlog) {
-  blogsCopy.splice(positionInArray, 0, updatedBlog);
+  return blogs[positionInArray];
 }
 
 function sortByLikes(blogsCopy) {
@@ -46,7 +33,8 @@ function sortByLikes(blogsCopy) {
 
 const App = () => {
   const [user, setUser] = useState(null);
-  const [blogs, setBlogs] = useState([]);
+  const [blogs, blogResource] = useResource('/api/blogs');
+  const [renderBlogs, setRenderBlogs] = useState([]);
   const [toast, setToast] = useState({ type: '', text: '' });
 
   const showToast = (text, type = 'success') => {
@@ -54,16 +42,6 @@ const App = () => {
     setTimeout(() => {
       setToast({ type: '', text: '' });
     }, 5000);
-  };
-
-  const getBlogList = async user => {
-    try {
-      const blogList = await blogService.getAll(user.token);
-      sortByLikes(blogList);
-      setBlogs(blogList);
-    } catch (err) {
-      showToast('Failed to get the list of blogs', 'error');
-    }
   };
 
   const handleLogin = ({ username, password }) => async event => {
@@ -86,7 +64,6 @@ const App = () => {
     try {
       window.localStorage.removeItem('login');
       setUser(null);
-      setBlogs([]);
       showToast('Successfully logged out');
     } catch (err) {
       showToast('Failed to log out', 'error');
@@ -96,8 +73,7 @@ const App = () => {
   const handleCreateBlog = ({ author, title, url }) => async event => {
     event.preventDefault();
     try {
-      await blogService.create({ author, title, url }, user.token);
-      await getBlogList(user);
+      await blogResource.create({ author, title, url }, user.token);
       showToast(`Blog entry ${title} by ${author} created successfully`);
     } catch (err) {
       showToast(`Failed to create ${title} by ${author}`, 'error');
@@ -107,20 +83,13 @@ const App = () => {
   const handleLike = blogId => async event => {
     event.preventDefault();
     try {
-      const positionInArray = findBlogPositionWithId(blogId, blogs);
-      const [blogToUpdate, blogsCopy] = extractElementAt(
-        positionInArray,
-        blogs
-      );
+      const blogToUpdate = findBlogWithId(blogId, blogs);
       const newLikesValue = blogToUpdate.likes + 1;
-      const updatedBlog = await blogService.update(
+      await blogResource.update(
         { ...blogToUpdate, likes: newLikesValue },
         user.token
       );
-      updatedBlog.user = blogToUpdate.user;
-      insertElementAt(positionInArray, blogsCopy, updatedBlog);
-      sortByLikes(blogsCopy);
-      setBlogs(blogsCopy);
+
       showToast(
         `Blog ${blogToUpdate.title} written by ${blogToUpdate.author} liked!`
       );
@@ -131,8 +100,7 @@ const App = () => {
 
   const handleDelete = blogId => async event => {
     event.preventDefault();
-    const positionInArray = findBlogPositionWithId(blogId, blogs);
-    const [blogToDelete, blogsCopy] = extractElementAt(positionInArray, blogs);
+    const blogToDelete = findBlogWithId(blogId, blogs);
     if (
       window.confirm(
         `Remove blog ${blogToDelete.title} by ${blogToDelete.author}?`
@@ -140,7 +108,7 @@ const App = () => {
     ) {
       try {
         await blogService.delete(blogToDelete, user.token);
-        setBlogs(blogsCopy);
+        await getBlogList(user);
         showToast(`Blog entry ${blogToDelete.title} deleted`);
       } catch (err) {
         showToast('Failed to delete blog', 'error');
@@ -149,18 +117,29 @@ const App = () => {
   };
 
   useEffect(() => {
-    const getAllBlogs = async user => {
-      const blogList = await blogService.getAll(user.token);
-      sortByLikes(blogList);
-      setBlogs(blogList);
-    };
+    sortByLikes(blogs);
+    setRenderBlogs(blogs);
+  }, [blogs]);
+
+  const stableBlogResource = useCallback(blogResource, []);
+  const getBlogList = useCallback(
+    async user => {
+      try {
+        await stableBlogResource.getAll(user.token);
+      } catch (err) {
+        showToast('Failed to get the list of blogs', 'error');
+      }
+    },
+    [stableBlogResource]
+  );
+  useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('login');
     if (loggedUserJSON) {
       const savedUser = JSON.parse(loggedUserJSON);
       setUser(savedUser);
-      getAllBlogs(savedUser);
+      getBlogList(savedUser);
     }
-  }, []);
+  }, [getBlogList]);
 
   return (
     <>
@@ -176,7 +155,7 @@ const App = () => {
           </Togglable>
           <BlogList
             user={user}
-            blogs={blogs}
+            blogs={renderBlogs}
             handleLike={handleLike}
             handleDelete={handleDelete}
           />
