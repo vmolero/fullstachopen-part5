@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const host = 'http://localhost:3003';
-const baseUrl = host + '/api/login';
+const baseUrl = '/api/login';
 
 const loginService = {
   login: async credentials => {
