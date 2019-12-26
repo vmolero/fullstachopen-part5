@@ -45,8 +45,6 @@ function sortByLikes(blogsCopy) {
 }
 
 const App = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
   const [blogs, setBlogs] = useState([]);
   const [author, setAuthor] = useState('');
@@ -54,8 +52,6 @@ const App = () => {
   const [url, setUrl] = useState('');
   const [toast, setToast] = useState({ type: '', text: '' });
 
-  const onChangeUsername = ({ target }) => setUsername(target.value);
-  const onChangePassword = ({ target }) => setPassword(target.value);
   const onChangeAuthor = ({ target }) => setAuthor(target.value);
   const onChangeTitle = ({ target }) => setTitle(target.value);
   const onChangeUrl = ({ target }) => setUrl(target.value);
@@ -77,7 +73,7 @@ const App = () => {
     }
   };
 
-  const handleLogin = async event => {
+  const handleLogin = ({ username, password }) => async event => {
     event.preventDefault();
     try {
       const loggedUser = await loginService.login({ username, password });
@@ -181,13 +177,7 @@ const App = () => {
       <h1>Blogs</h1>
       <Toast type={toast.type} message={toast.text} />
       {user === null ? (
-        <LoginForm
-          username={username}
-          password={password}
-          handleLogin={handleLogin}
-          onChangeUsername={onChangeUsername}
-          onChangePassword={onChangePassword}
-        />
+        <LoginForm handleLogin={handleLogin} />
       ) : (
         <>
           <Logout username={user.username} handleLogout={handleLogout} />
