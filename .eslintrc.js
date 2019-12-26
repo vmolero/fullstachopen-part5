@@ -12,7 +12,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module'
   },
-  plugins: ['react', 'jest'],
+  plugins: ['react', 'jest', 'react-hooks'],
   rules: {
     indent: ['error', 2],
     'linebreak-style': ['error', 'unix'],
@@ -23,7 +23,8 @@ module.exports = {
     'object-curly-spacing': ['error', 'always'],
     'arrow-spacing': ['error', { before: true, after: true }],
     'no-console': 0,
-    'react/prop-types': 0
+    'react/prop-types': 0,
+    'react-hooks/rules-of-hooks': 'error'
   },
   settings: {
     react: {
