@@ -1,4 +1,4 @@
-const getAll = [
+const getAll = () => [
   {
     likes: 13,
     author: 'Michael Night',
