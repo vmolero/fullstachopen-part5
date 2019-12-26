@@ -47,14 +47,7 @@ function sortByLikes(blogsCopy) {
 const App = () => {
   const [user, setUser] = useState(null);
   const [blogs, setBlogs] = useState([]);
-  const [author, setAuthor] = useState('');
-  const [title, setTitle] = useState('');
-  const [url, setUrl] = useState('');
   const [toast, setToast] = useState({ type: '', text: '' });
-
-  const onChangeAuthor = ({ target }) => setAuthor(target.value);
-  const onChangeTitle = ({ target }) => setTitle(target.value);
-  const onChangeUrl = ({ target }) => setUrl(target.value);
 
   const showToast = (text, type = 'success') => {
     setToast({ type, text });
@@ -100,14 +93,11 @@ const App = () => {
     }
   };
 
-  const handleCreateBlog = async event => {
+  const handleCreateBlog = ({ author, title, url }) => async event => {
     event.preventDefault();
     try {
       await blogService.create({ author, title, url }, user.token);
       await getBlogList(user);
-      setAuthor('');
-      setTitle('');
-      setUrl('');
       showToast(`Blog entry ${title} by ${author} created successfully`);
     } catch (err) {
       showToast(`Failed to create ${title} by ${author}`, 'error');
@@ -182,15 +172,7 @@ const App = () => {
         <>
           <Logout username={user.username} handleLogout={handleLogout} />
           <Togglable buttonLabel={'Create new'}>
-            <CreateBlogForm
-              author={author}
-              title={title}
-              url={url}
-              onChangeAuthor={onChangeAuthor}
-              onChangeTitle={onChangeTitle}
-              onChangeUrl={onChangeUrl}
-              handleCreateBlog={handleCreateBlog}
-            />
+            <CreateBlogForm handleCreateBlog={handleCreateBlog} />
           </Togglable>
           <BlogList
             user={user}

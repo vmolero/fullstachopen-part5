@@ -1,41 +1,40 @@
 import React from 'react';
+import { useField } from '../hooks';
 
-const CreateBlogForm = ({
-  author,
-  title,
-  url,
-  handleCreateBlog,
-  onChangeAuthor,
-  onChangeTitle,
-  onChangeUrl
-}) => {
+const CreateBlogForm = ({ handleCreateBlog }) => {
+  const authorInput = useField('text');
+  const titleInput = useField('text');
+  const urlInput = useField('text');
   return (
     <>
       <h2>Create blog</h2>
-      <form onSubmit={handleCreateBlog}>
+      <form
+        onSubmit={handleCreateBlog({
+          author: authorInput.value,
+          title: titleInput.value,
+          url: urlInput.value
+        })}
+        onReset={evt => {
+          evt.preventDefault();
+          authorInput.onReset();
+          titleInput.onReset();
+          urlInput.onReset();
+        }}
+      >
         <div>
           author
-          <input
-            type="text"
-            value={author}
-            name="author"
-            onChange={onChangeAuthor}
-          />
+          <input name="author" {...authorInput} />
         </div>
         <div>
           title
-          <input
-            type="text"
-            value={title}
-            name="title"
-            onChange={onChangeTitle}
-          />
+          <input name="title" {...titleInput} />
         </div>
         <div>
           url
-          <input type="text" value={url} name="url" onChange={onChangeUrl} />
+          <input name="url" {...urlInput} />
         </div>
         <button type="submit">Create</button>
+        <button type="reset">reset</button>
       </form>
     </>
   );

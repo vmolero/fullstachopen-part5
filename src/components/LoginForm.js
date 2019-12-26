@@ -10,6 +10,11 @@ const LoginForm = ({ handleLogin }) => {
         username: usernameInput.value,
         password: passwordInput.value
       })}
+      onReset={evt => {
+        evt.preventDefault();
+        usernameInput.onReset();
+        passwordInput.onReset();
+      }}
     >
       <div>
         username
@@ -20,6 +25,7 @@ const LoginForm = ({ handleLogin }) => {
         <input name="Password" {...passwordInput} />
       </div>
       <button type="submit">login</button>
+      <button type="reset">reset</button>
     </form>
   );
 };
